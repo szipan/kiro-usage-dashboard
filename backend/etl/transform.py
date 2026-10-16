@@ -30,6 +30,9 @@ STATIC_NUMERIC = [
 
 def _read_csv(buf) -> pd.DataFrame:
     df = pd.read_csv(buf, dtype=str).fillna("")
+    # 早期导出 / mock 生成器没有 Usage_Limit 列：补 0，下游即按 Overage_Cap 回退（见 transform 派生段）
+    if "Usage_Limit" not in df.columns:
+        df["Usage_Limit"] = "0"
     numeric_cols = STATIC_NUMERIC + [c for c in df.columns if c.endswith("_messages")]
     for c in numeric_cols:
         if c in df.columns:
